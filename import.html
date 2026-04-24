@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head><meta charset="UTF-8"><title>匯入</title>
+<style>body{font-family:sans-serif;max-width:500px;margin:60px auto;padding:20px}
+button{background:#78d23c;color:#fff;border:none;padding:14px 28px;font-size:16px;border-radius:6px;cursor:pointer;font-weight:bold}
+#log{margin-top:20px;padding:14px;background:#f5f9fc;border:1px solid #c8dcea;border-radius:6px;font-size:13px;font-family:monospace;white-space:pre-wrap;min-height:80px}
+.ok{color:#5aaa28}.err{color:#e05555}</style>
+</head>
+<body>
+<h2>岡村食品 報價單匯入</h2>
+<button onclick="run()">🚀 開始匯入 Firebase</button>
+<div id="log">點擊按鈕開始...</div>
+<script type="module">
+import{initializeApp}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import{getFirestore,setDoc,doc}from"https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+const app=initializeApp({apiKey:"AIzaSyC19YSQVGg6K9FK64dcvk6C8CjnNkFD-M4",authDomain:"yunenquotes.firebaseapp.com",projectId:"yunenquotes",storageBucket:"yunenquotes.firebasestorage.app",messagingSenderId:"683201542705",appId:"1:683201542705:web:1b4293574bdc758b4f7310"});
+const db=getFirestore(app);
+function uid(){return Date.now().toString(36)+Math.random().toString(36).slice(2,6)}
+function log(m,c=''){document.getElementById('log').innerHTML+=`<span class="${c}">${m}</span>\n`}
+window.run=async function(){
+  document.querySelector('button').disabled=true;
+  document.getElementById('log').innerHTML='';
+  log('連線 Firebase...');
+  const now=new Date().toISOString(),date='2025-05-04';
+  const q1={id:'QT-2025-OKV-001',clientId:'cl-001',client:'岡村食品',clientContact:'康副總',clientTel:'0938-562510',clientFax:'',clientAddr:'',clientEmail:'',title:'填高地版與水溝工程估價單',date,validity:30,status:'草稿',note:'',taxRate:0.05,createdAt:now,sections:[{id:uid(),name:'地板工程',items:[{id:uid(),name:'地面填高15公分',note:'地板+水泥點焊鐵絲網+灌漿+粉光',spec:'坪',unit:'坪',price:7200,qty:90},{id:uid(),name:'復原時保護地板防水墊',note:'',spec:'',unit:'坪',price:1300,qty:90},{id:uid(),name:'防水牆(前處理區與機電室界線)',note:'',spec:'6米',unit:'米',price:1500,qty:6},{id:uid(),name:'不鏽鋼水溝訂製品/鑄鋁防滑蓋',note:'4條*4米共16米',spec:'共16米',unit:'米',price:5000,qty:16},{id:uid(),name:'不鏽鋼截油槽(含安裝)',note:'',spec:'1500*800*700',unit:'套',price:70000,qty:1},{id:uid(),name:'不鏽鋼攔渣槽(含安裝)',note:'',spec:'',unit:'個',price:9000,qty:4},{id:uid(),name:'鐵架(截油槽爬梯含安裝)',note:'',spec:'',unit:'式',price:70000,qty:1},{id:uid(),name:'EXPOXY三層(3MM)',note:'三層3MM',spec:'m²',unit:'m²',price:850,qty:300},{id:uid(),name:'玻璃纖維',note:'',spec:'60*60*80',unit:'式',price:550,qty:300},{id:uid(),name:'不鏽鋼水槽雙口(含安裝)',note:'加工區與前處理區冷熱管',spec:'1850*600*800',unit:'套',price:25000,qty:2},{id:uid(),name:'不鏽鋼水槽單口(含安裝)',note:'消毒室',spec:'60*60*80',unit:'套',price:13000,qty:1}]}]};
+  const q2={id:'QT-2025-OKV-002',clientId:'cl-001',client:'岡村食品',clientContact:'康副總',clientTel:'0938-562510',clientFax:'',clientAddr:'',clientEmail:'',title:'水電工程估價單',date,validity:30,status:'草稿',note:'',taxRate:0.05,createdAt:now,sections:[{id:uid(),name:'水電工程',items:[{id:uid(),name:'平板燈',note:'全廠區燈具含安裝',spec:'',unit:'盞',price:1200,qty:100},{id:uid(),name:'110V插座配置',note:'',spec:'',unit:'組',price:4000,qty:15},{id:uid(),name:'220V插座配置',note:'真空包裝機、金檢機等',spec:'',unit:'組',price:7000,qty:7},{id:uid(),name:'浴塵室電源',note:'3相220V',spec:'',unit:'式',price:9000,qty:1},{id:uid(),name:'感應式開關(更衣室消毒室)',note:'感應器*4',spec:'',unit:'個',price:2000,qty:4},{id:uid(),name:'電燈開關迴路配置',note:'',spec:'',unit:'迴路',price:3000,qty:16},{id:uid(),name:'電動門迴路',note:'電源220V',spec:'',unit:'組',price:4000,qty:3},{id:uid(),name:'消毒室給水(腳踏開關)',note:'',spec:'',unit:'式',price:8000,qty:1},{id:uid(),name:'一般水槽給水(含水龍頭)',note:'前處理區與加工作業區',spec:'',unit:'組',price:5000,qty:2},{id:uid(),name:'排水配置(水槽含冷凍庫)',note:'',spec:'',unit:'組',price:5200,qty:6},{id:uid(),name:'室外高空排水管工程',note:'含工資',spec:'',unit:'式',price:80000,qty:1},{id:uid(),name:'配電盤',note:'士林電機含工帶料',spec:'士林電機',unit:'面',price:80000,qty:2},{id:uid(),name:'冷凍空調電源與配電',note:'',spec:'',unit:'式',price:100000,qty:1},{id:uid(),name:'消防管路配電工程',note:'',spec:'',unit:'式',price:30000,qty:1},{id:uid(),name:'監工管理費',note:'工程協調與溝通進度跟追',spec:'',unit:'式',price:98000,qty:1},{id:uid(),name:'工程保險費',note:'',spec:'',unit:'式',price:30000,qty:1}]}]};
+  try{
+    log('寫入報價單1：填高地版水溝工程...');
+    await setDoc(doc(db,'quotes',q1.id),q1);
+    log('✅ QT-2025-OKV-001 完成 (稅前 NT$1,513,000)','ok');
+    log('寫入報價單2：水電工程...');
+    await setDoc(doc(db,'quotes',q2.id),q2);
+    log('✅ QT-2025-OKV-002 完成 (稅前 NT$853,200)','ok');
+    log('\n🎉 匯入完成！請開啟報價系統查看','ok');
+    log('👉 https://isnana0124-source.github.io/yunen_quotes/');
+  }catch(e){log('❌ '+e.message,'err');}
+};
+</script>
+</body></html>
