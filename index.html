@@ -494,7 +494,13 @@ header{background:linear-gradient(135deg,var(--blue-dk) 0%,var(--blue) 60%,#2a8f
   </div>
 </div>
 
-<script type="module">
+<script type="module">import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
+import {
+  getFirestore, collection, doc,
+  getDocs, getDoc, setDoc, deleteDoc, query, orderBy
+} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
 
 // ══════════════════════════════════════════════════════════════════
 // FIREBASE CONFIGURATION  ← 請在此填入您的 Firebase 設定
@@ -509,11 +515,8 @@ const firebaseConfig = {
 };
 
 // ── Firebase init ─────────────────────────────────────────────────
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-app.js";
-import {
-  getFirestore, collection, doc,
-  getDocs, getDoc, setDoc, deleteDoc, query, orderBy
-} from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+
+
 
 const _app = initializeApp(firebaseConfig);
 const db   = getFirestore(_app);
@@ -813,21 +816,67 @@ function renderList(){
   $id('listSubtitle').textContent=`共 ${rows.length} 份報價單`;
   const el=$id('quotesList');
   if(!rows.length){ el.innerHTML=`<div class="empty"><div class="empty-icon">📄</div><p>找不到報價單</p><button class="btn btn-green" onclick="openNewQuoteModal()">＋ 新增</button></div>`; return; }
-  el.innerHTML=rows.map(qt=>{
-    const {total}=calcQuote(qt);
-    return `<div class="quote-card" onclick="openQuote('${qt.id}')">
-      <div class="qc-no">${qt.id}<br>${qt.date||''}</div>
-      <div class="qc-main"><div class="qc-client">${qt.client}</div><div class="qc-title">${qt.title}</div></div>
-      <div class="qc-right">
-        <div class="qc-amount">NT$${fmtN(Math.round(total))}</div>
-        <span class="qc-status ${statusClass(qt.status)}">${qt.status}</span>
+
+  // 按客戶分組
+  const groups={};
+  const groupOrder=[];
+  rows.forEach(qt=>{
+    const key=qt.clientId||qt.client||'未分類';
+    if(!groups[key]){ groups[key]={clientId:qt.clientId||null, clientName:qt.client||'未分類', quotes:[]}; groupOrder.push(key); }
+    groups[key].quotes.push(qt);
+  });
+
+  el.innerHTML=groupOrder.map(key=>{
+    const g=groups[key];
+    const groupTotal=g.quotes.reduce((s,qt)=>s+calcQuote(qt).total,0);
+    const accepted=g.quotes.filter(qt=>qt.status==='已接受').length;
+    const COLORS_LOCAL=['#1e78b4','#78d23c','#e8a020','#e05555','#8b5cf6','#06b6d4','#f59e0b','#10b981'];
+    const col=COLORS_LOCAL[groupOrder.indexOf(key)%COLORS_LOCAL.length];
+    const initials=(g.clientName||'?').slice(0,2);
+    return `<div class="client-group" style="margin-bottom:18px">
+      <div class="client-group-hd" style="display:flex;align-items:center;gap:10px;padding:10px 14px;background:#fff;border:1px solid var(--border);border-radius:8px 8px 0 0;border-bottom:2px solid ${col};cursor:pointer" onclick="this.parentElement.classList.toggle('collapsed')">
+        <div style="width:32px;height:32px;border-radius:8px;background:${col};display:flex;align-items:center;justify-content:center;color:#fff;font-weight:900;font-size:13px;flex-shrink:0">${initials}</div>
+        <div style="flex:1;min-width:0">
+          <div style="font-weight:700;font-size:15px;color:var(--ink)">${g.clientName}</div>
+          <div style="font-size:11px;color:var(--ink3);margin-top:1px">${g.quotes.length} 份報價　已接受 ${accepted} 份</div>
+        </div>
+        <div style="text-align:right;flex-shrink:0">
+          <div style="font-family:'JetBrains Mono',monospace;font-size:15px;font-weight:600;color:${col}">NT$${fmtN(Math.round(groupTotal))}</div>
+          <div style="font-size:10px;color:var(--ink3);margin-top:2px">合計（含稅）</div>
+        </div>
+        <div style="color:var(--ink3);font-size:13px;margin-left:6px;transition:transform .2s" class="grp-arrow">▾</div>
       </div>
-      <div class="qc-actions" onclick="event.stopPropagation()">
-        <button class="btn btn-ghost btn-xs" onclick="dupeQuote('${qt.id}')">複製</button>
-        <button class="btn btn-danger btn-xs" onclick="delQuote('${qt.id}')">刪除</button>
+      <div class="client-group-body" style="border:1px solid var(--border);border-top:none;border-radius:0 0 8px 8px;overflow:hidden">
+        ${g.quotes.map(qt=>{
+          const {total}=calcQuote(qt);
+          return `<div class="quote-card" onclick="openQuote('${qt.id}')" style="border-radius:0;border:none;border-bottom:1px solid var(--paper3)">
+            <div class="qc-no">${qt.id}<br>${qt.date||''}</div>
+            <div class="qc-main"><div class="qc-client" style="font-size:13px;color:var(--ink2)">${qt.title}</div></div>
+            <div class="qc-right">
+              <div class="qc-amount">NT$${fmtN(Math.round(total))}</div>
+              <span class="qc-status ${statusClass(qt.status)}">${qt.status}</span>
+            </div>
+            <div class="qc-actions" onclick="event.stopPropagation()">
+              <button class="btn btn-ghost btn-xs" onclick="dupeQuote('${qt.id}')">複製</button>
+              <button class="btn btn-danger btn-xs" onclick="delQuote('${qt.id}')">刪除</button>
+            </div>
+          </div>`;
+        }).join('')}
       </div>
     </div>`;
   }).join('');
+
+  // 折疊樣式
+  document.querySelectorAll('.client-group.collapsed .client-group-body').forEach(el=>el.style.display='none');
+  document.querySelectorAll('.client-group.collapsed .grp-arrow').forEach(el=>el.style.transform='rotate(-90deg)');
+  document.querySelectorAll('.client-group-hd').forEach(hd=>{
+    const obs=new MutationObserver(()=>{
+      const c=hd.parentElement.classList.contains('collapsed');
+      hd.parentElement.querySelector('.client-group-body').style.display=c?'none':'';
+      hd.querySelector('.grp-arrow').style.transform=c?'rotate(-90deg)':'';
+    });
+    obs.observe(hd.parentElement,{attributes:true,attributeFilter:['class']});
+  });
 }
 
 // ── Clients ───────────────────────────────────────────────────────
@@ -887,18 +936,21 @@ function editClient(id){
 }
 function saveClient(){
   const name=$id('cm-name').value.trim(); if(!name){ alert('請填寫公司名稱'); return; }
-  const data={ name, short:$id('cm-short').value, contact:$id('cm-contact').value, title:$id('cm-title').value,
-    tel:$id('cm-tel').value, fax:$id('cm-fax').value, addr:$id('cm-addr').value, email:$id('cm-email').value,
-    taxid:$id('cm-taxid').value, industry:$id('cm-industry').value, note:$id('cm-note').value };
+  const data={ name, short:$id('cm-short').value.trim(), contact:$id('cm-contact').value.trim(), title:$id('cm-title').value.trim(),
+    tel:$id('cm-tel').value.trim(), fax:$id('cm-fax').value.trim(), addr:$id('cm-addr').value.trim(), email:$id('cm-email').value.trim(),
+    taxid:$id('cm-taxid').value.trim(), industry:$id('cm-industry').value.trim(), note:$id('cm-note').value.trim() };
+  let savedClient;
   if(editClientId){
     const idx=clients.findIndex(c=>c.id===editClientId);
-    if(idx>=0) clients[idx]={...clients[idx],...data};
+    if(idx>=0){ clients[idx]={...clients[idx],...data}; savedClient=clients[idx]; }
     toast('✅ 客戶資料已更新');
   } else {
-    clients.push({id:'cl-'+uid(), ...data, createdAt:new Date().toISOString()});
+    savedClient={id:'cl-'+uid(), ...data, createdAt:new Date().toISOString()};
+    clients.push(savedClient);
     toast('✅ 客戶已新增');
   }
-  saveClients(); saveClientFS(editClientId ? clients.find(c=>c.id===editClientId) : clients[clients.length-1]); closeModal('clientModal'); renderClients(); updateBadges();
+  if(savedClient) saveClientFS(savedClient);
+  closeModal('clientModal'); renderClients(); updateBadges();
 }
 function deleteClient(){
   if(!editClientId||!confirm('確定刪除此客戶？')) return;
