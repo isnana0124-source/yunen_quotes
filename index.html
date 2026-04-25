@@ -1242,6 +1242,38 @@ function toggleStamp(){
 }
 
 // ── Init ──────────────────────────────────────────────────────────
+
+// ── Expose to global scope (for HTML onclick handlers) ──
+window.addItem = addItem;
+window.addSec = addSec;
+window.closeModal = closeModal;
+window.createQuote = createQuote;
+window.delQuote = delQuote;
+window.deleteClient = deleteClient;
+window.dupeQuote = dupeQuote;
+window.editClient = editClient;
+window.exportAll = exportAll;
+window.fillClientFromSel = fillClientFromSel;
+window.newQuoteForClient = newQuoteForClient;
+window.openNewClientModal = openNewClientModal;
+window.openNewQuoteModal = openNewQuoteModal;
+window.openQuote = openQuote;
+window.printQuote = printQuote;
+window.quickFilter = quickFilter;
+window.renderClients = renderClients;
+window.renderList = renderList;
+window.resetToDemo = resetToDemo;
+window.rmItem = rmItem;
+window.rmSec = rmSec;
+window.saveClient = saveClient;
+window.saveSettings = saveSettings;
+window.setFilter = setFilter;
+window.showView = showView;
+window.toggleStamp = toggleStamp;
+window.updItem = updItem;
+window.updQField = updQField;
+window.updSec = updSec;
+
 (async () => {
   await loadAll();
   renderList();
