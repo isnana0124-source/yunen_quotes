@@ -1131,8 +1131,21 @@ function renderQuoteDoc(){
       </div>
 
       <div class="terms-area">
-        <div class="terms-title">條款說明</div>
-        <ul class="terms-list">${terms}</ul>
+        <div class="terms-title" style="display:flex;align-items:center;justify-content:space-between;margin-bottom:10px">
+          <span>條款說明</span>
+          <button class="btn btn-ghost btn-xs no-print" onclick="toggleTermsEdit('${q.id}')" id="termsEditBtn-${q.id}" style="font-size:11px">✏️ 編輯條款</button>
+        </div>
+        <!-- 編輯模式 -->
+        <div id="termsEditor-${q.id}" style="display:none">
+          <textarea id="termsTA-${q.id}" style="width:100%;height:160px;font-size:12px;font-family:'Noto Sans TC',sans-serif;border:1.5px solid var(--blue);border-radius:6px;padding:10px;resize:vertical;outline:none;line-height:1.8;color:var(--ink);background:#fff" placeholder="每行一條條款，按 Enter 換行">${(q.terms||s.terms||'').replace(/</g,'&lt;')}</textarea>
+          <div style="display:flex;gap:8px;margin-top:8px">
+            <button class="btn btn-green btn-sm no-print" onclick="saveTerms('${q.id}')">✅ 儲存條款</button>
+            <button class="btn btn-ghost btn-sm no-print" onclick="cancelTermsEdit('${q.id}')">取消</button>
+            <span style="font-size:11px;color:var(--ink3);line-height:32px;margin-left:4px">每行一條，可直接修改付款條件</span>
+          </div>
+        </div>
+        <!-- 顯示模式 -->
+        <ul class="terms-list" id="termsList-${q.id}">${terms}</ul>
       </div>
 
       <!-- Signature + Stamp -->
@@ -1243,6 +1256,59 @@ function toggleStamp(){
 
 // ── Init ──────────────────────────────────────────────────────────
 
+// ── Terms Edit ───────────────────────────────────────────────────
+function toggleTermsEdit(qid){
+  const editor = $id(`termsEditor-${qid}`);
+  const list   = $id(`termsList-${qid}`);
+  const ta     = $id(`termsTA-${qid}`);
+  const btn    = $id(`termsEditBtn-${qid}`);
+  if(!editor) return;
+  const isOpen = editor.style.display !== 'none';
+  if(isOpen){
+    editor.style.display = 'none';
+    list.style.display = '';
+    btn.textContent = '✏️ 編輯條款';
+  } else {
+    // 填入最新條款內容
+    const q = quotes.find(x=>x.id===qid);
+    const s = getSettings();
+    ta.value = (q && q.terms != null ? q.terms : s.terms) || '';
+    editor.style.display = 'block';
+    list.style.display = 'none';
+    btn.textContent = '✕ 關閉編輯';
+    ta.focus();
+  }
+}
+async function saveTerms(qid){
+  const ta = $id(`termsTA-${qid}`);
+  const list = $id(`termsList-${qid}`);
+  const editor = $id(`termsEditor-${qid}`);
+  const btn  = $id(`termsEditBtn-${qid}`);
+  if(!ta) return;
+  const q = quotes.find(x=>x.id===qid);
+  if(!q) return;
+  q.terms = ta.value;
+  await saveQuote(q);
+  saveQuotes();
+  // 更新顯示
+  const s = getSettings();
+  const newTermsHtml = (q.terms||s.terms||'').split('\n').map(t=>t.trim()).filter(Boolean).map(t=>`<li>${t}</li>`).join('');
+  list.innerHTML = newTermsHtml;
+  editor.style.display = 'none';
+  list.style.display = '';
+  btn.textContent = '✏️ 編輯條款';
+  toast('✅ 條款已儲存');
+}
+function cancelTermsEdit(qid){
+  const editor = $id(`termsEditor-${qid}`);
+  const list   = $id(`termsList-${qid}`);
+  const btn    = $id(`termsEditBtn-${qid}`);
+  if(!editor) return;
+  editor.style.display = 'none';
+  list.style.display = '';
+  btn.textContent = '✏️ 編輯條款';
+}
+
 // ── Expose to global scope (for HTML onclick handlers) ──
 window.addItem = addItem;
 window.addSec = addSec;
@@ -1273,6 +1339,9 @@ window.toggleStamp = toggleStamp;
 window.updItem = updItem;
 window.updQField = updQField;
 window.updSec = updSec;
+window.toggleTermsEdit = toggleTermsEdit;
+window.saveTerms = saveTerms;
+window.cancelTermsEdit = cancelTermsEdit;
 
 (async () => {
   await loadAll();
