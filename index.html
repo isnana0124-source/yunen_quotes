@@ -494,8 +494,6 @@ header{background:linear-gradient(135deg,var(--blue-dk) 0%,var(--blue) 60%,#2a8f
   </div>
 </div>
 
-<script>
-
 <script type="module">
 
 // ══════════════════════════════════════════════════════════════════
@@ -648,6 +646,48 @@ function seedQuotes(){
         { id:uid(), name:'冷凍機組', note:'含安裝調試', spec:'', unit:'套', price:280000, qty:1 },
         { id:uid(), name:'庫內照明配電', note:'', spec:'', unit:'式', price:25000, qty:1 },
       ]}]
+    },
+    ,
+    { id:'QT-2025-OKV-001', clientId:'cl-001', client:'岡村食品', clientContact:'康副總', clientTel:'0938-562510', clientFax:'', clientAddr:'', clientEmail:'',
+      title:'填高地版與水溝工程估價單', date:'2025-05-04', validity:30, status:'草稿', note:'', taxRate:0.05, createdAt:new Date().toISOString(),
+      sections:[
+        { id:uid(), name:'地板工程', items:[
+          { id:uid(), name:'地面填高15公分', note:'地板+水泥點焊鐵絲網+灌漿+粉光', spec:'坪', unit:'坪', price:7200, qty:90 },
+          { id:uid(), name:'復原時保護地板防水墊', note:'', spec:'', unit:'坪', price:1300, qty:90 },
+          { id:uid(), name:'防水牆(前處理區與機電室界線)', note:'', spec:'6米', unit:'米', price:1500, qty:6 },
+          { id:uid(), name:'不鏽鋼水溝訂製品/鑄鋁防滑蓋', note:'4條*4米，共16米', spec:'共16米', unit:'米', price:5000, qty:16 },
+          { id:uid(), name:'不鏽鋼截油槽(含安裝)', note:'含安裝', spec:'1500*800*700', unit:'套', price:70000, qty:1 },
+          { id:uid(), name:'不鏽鋼攔渣槽(含安裝)', note:'', spec:'', unit:'個', price:9000, qty:4 },
+          { id:uid(), name:'鐵架(截油槽爬梯含安裝)', note:'', spec:'', unit:'式', price:70000, qty:1 },
+          { id:uid(), name:'EXPOXY三層(3MM)', note:'三層3MM', spec:'平方公尺', unit:'m²', price:850, qty:300 },
+          { id:uid(), name:'玻璃纖維', note:'', spec:'60*60*80', unit:'式', price:550, qty:300 },
+          { id:uid(), name:'不鏽鋼水槽雙口(含安裝)', note:'加工區與前處理區冷熱管', spec:'1850*600*800', unit:'套', price:25000, qty:2 },
+          { id:uid(), name:'不鏽鋼水槽單口(含安裝)', note:'消毒室', spec:'60*60*80', unit:'套', price:13000, qty:1 },
+        ]},
+      ]
+    },
+    { id:'QT-2025-OKV-002', clientId:'cl-001', client:'岡村食品', clientContact:'康副總', clientTel:'0938-562510', clientFax:'', clientAddr:'', clientEmail:'',
+      title:'水電工程估價單', date:'2025-05-04', validity:30, status:'草稿', note:'', taxRate:0.05, createdAt:new Date().toISOString(),
+      sections:[
+        { id:uid(), name:'水電工程', items:[
+          { id:uid(), name:'平板燈', note:'全廠區燈具含安裝', spec:'', unit:'盞', price:1200, qty:100 },
+          { id:uid(), name:'110V插座配置', note:'', spec:'', unit:'組', price:4000, qty:15 },
+          { id:uid(), name:'220V插座配置', note:'真空包裝機、金檢機等', spec:'', unit:'組', price:7000, qty:7 },
+          { id:uid(), name:'浴塵室電源', note:'3相220V', spec:'', unit:'式', price:9000, qty:1 },
+          { id:uid(), name:'感應式開關(更衣室消毒室)', note:'感應器*4', spec:'', unit:'個', price:2000, qty:4 },
+          { id:uid(), name:'電燈開關迴路配置', note:'', spec:'', unit:'迴路', price:3000, qty:16 },
+          { id:uid(), name:'電動門迴路', note:'電源220V', spec:'', unit:'組', price:4000, qty:3 },
+          { id:uid(), name:'消毒室給水(腳踏開關)', note:'', spec:'', unit:'式', price:8000, qty:1 },
+          { id:uid(), name:'一般水槽給水(含水龍頭)', note:'前處理區與加工作業區', spec:'', unit:'組', price:5000, qty:2 },
+          { id:uid(), name:'排水配置(水槽含冷凍庫)', note:'', spec:'', unit:'組', price:5200, qty:6 },
+          { id:uid(), name:'室外高空排水管工程', note:'含工資', spec:'', unit:'式', price:80000, qty:1 },
+          { id:uid(), name:'配電盤', note:'士林電機，含工帶料', spec:'士林電機', unit:'面', price:80000, qty:2 },
+          { id:uid(), name:'冷凍空調電源與配電', note:'', spec:'', unit:'式', price:100000, qty:1 },
+          { id:uid(), name:'消防管路配電工程', note:'', spec:'', unit:'式', price:30000, qty:1 },
+          { id:uid(), name:'監工管理費', note:'工程協調與溝通進度跟追', spec:'', unit:'式', price:98000, qty:1 },
+          { id:uid(), name:'工程保險費', note:'', spec:'', unit:'式', price:30000, qty:1 },
+        ]},
+      ]
     },
   ];
   return Promise.all(quotes.map(q=>fsSave('quotes',q.id,q)));
@@ -922,24 +962,6 @@ function dupeQuote(id){
   c.sections.forEach(s=>{ s.id=uid(); s.items.forEach(i=>i.id=uid()); });
   quotes.unshift(c); saveQuotes(); saveQuote(c); renderList(); toast(`✅ 已複製為 ${c.id}`);
 }
-function resetToDemo(){
-  if(!confirm('確定要載入範例資料？\n（現有資料會被清除）')) return;
-  localStorage.removeItem(QK);
-  localStorage.removeItem(CK);
-  quotes = []; clients = [];
-  seedQuotes();
-  seedClients();
-  showView('list');
-  toast('✅ 範例資料已載入');
-}
-function exportAll(){
-  const blob=new Blob([JSON.stringify({quotes,clients},null,2)],{type:'application/json'});
-  const a=document.createElement('a'); a.href=URL.createObjectURL(blob);
-  a.download=`云恩備份_${new Date().toISOString().slice(0,10)}.json`; a.click(); URL.revokeObjectURL(a.href);
-  toast('✅ 已匯出備份');
-}
-
-// ── Quote Detail ──────────────────────────────────────────────────
 function openQuote(id){ currentQuoteId=id; showView('detail'); renderQuoteDoc(); }
 
 function renderQuoteDoc(){
@@ -961,9 +983,9 @@ function renderQuoteDoc(){
       iHtml+=`<tr>
         <td class="mono" style="color:var(--ink3);width:36px">${String(ii+1).padStart(2,'0')}</td>
         <td><input value="${esc(item.name)}" placeholder="項目名稱" onchange="updItem('${sec.id}','${item.id}','name',this.value)"></td>
-        <td><input value="${esc(item.note||''}" placeholder="備註" onchange="updItem('${sec.id}','${item.id}','note',this.value)" style="color:var(--ink3)"></td>
-        <td><input value="${esc(item.spec||''}" placeholder="規格" onchange="updItem('${sec.id}','${item.id}','spec',this.value)" style="color:var(--ink3)"></td>
-        <td class="c" style="width:48px"><input value="${esc(item.unit||'式'}" onchange="updItem('${sec.id}','${item.id}','unit',this.value)" style="text-align:center;width:44px"></td>
+        <td><input value="${esc(item.note||'')}" placeholder="備註" onchange="updItem('${sec.id}','${item.id}','note',this.value)" style="color:var(--ink3)"></td>
+        <td><input value="${esc(item.spec||'')}" placeholder="規格" onchange="updItem('${sec.id}','${item.id}','spec',this.value)" style="color:var(--ink3)"></td>
+        <td class="c" style="width:48px"><input value="${esc(item.unit||'式')}" onchange="updItem('${sec.id}','${item.id}','unit',this.value)" style="text-align:center;width:44px"></td>
         <td class="r" style="width:110px"><input value="${item.price||0}" type="number" onchange="updItem('${sec.id}','${item.id}','price',this.value)" style="text-align:right;width:106px" class="mono"></td>
         <td class="c" style="width:66px"><input value="${item.qty||1}" type="number" onchange="updItem('${sec.id}','${item.id}','qty',this.value)" style="text-align:center;width:62px" class="mono"></td>
         <td class="amt" id="amt-${item.id}">NT$${fmtN(amt)}</td>
@@ -1013,11 +1035,11 @@ function renderQuoteDoc(){
         <div class="meta-block">
           <div class="meta-label">客戶資訊</div>
           <div class="meta-row"><span class="mk">客戶名稱</span><span class="mv"><input value="${esc(q.client)}" onchange="updQField('client',this.value)"></span></div>
-          <div class="meta-row"><span class="mk">聯絡人</span><span class="mv"><input value="${esc(q.clientContact||''}" onchange="updQField('clientContact',this.value)"></span></div>
-          <div class="meta-row"><span class="mk">電話</span><span class="mv"><input value="${esc(q.clientTel||''}" onchange="updQField('clientTel',this.value)"></span></div>
-          <div class="meta-row"><span class="mk">傳真</span><span class="mv"><input value="${esc(q.clientFax||''}" onchange="updQField('clientFax',this.value)"></span></div>
-          <div class="meta-row"><span class="mk">地址</span><span class="mv"><input value="${esc(q.clientAddr||''}" onchange="updQField('clientAddr',this.value)"></span></div>
-          <div class="meta-row"><span class="mk">Email</span><span class="mv"><input value="${esc(q.clientEmail||''}" onchange="updQField('clientEmail',this.value)"></span></div>
+          <div class="meta-row"><span class="mk">聯絡人</span><span class="mv"><input value="${esc(q.clientContact||'')}" onchange="updQField('clientContact',this.value)"></span></div>
+          <div class="meta-row"><span class="mk">電話</span><span class="mv"><input value="${esc(q.clientTel||'')}" onchange="updQField('clientTel',this.value)"></span></div>
+          <div class="meta-row"><span class="mk">傳真</span><span class="mv"><input value="${esc(q.clientFax||'')}" onchange="updQField('clientFax',this.value)"></span></div>
+          <div class="meta-row"><span class="mk">地址</span><span class="mv"><input value="${esc(q.clientAddr||'')}" onchange="updQField('clientAddr',this.value)"></span></div>
+          <div class="meta-row"><span class="mk">Email</span><span class="mv"><input value="${esc(q.clientEmail||'')}" onchange="updQField('clientEmail',this.value)"></span></div>
         </div>
         <div class="meta-block">
           <div class="meta-label">報價資訊</div>
@@ -1030,7 +1052,7 @@ function renderQuoteDoc(){
               ${['草稿','已送出','已確認','未成交'].map(ss=>`<option${q.status===ss?' selected':''} >${ss}</option>`).join('')}
             </select>
           </span></div>
-          <div class="meta-row"><span class="mk">備註</span><span class="mv"><input value="${esc(q.note||''}" placeholder="備註" onchange="updQField('note',this.value)"></span></div>
+          <div class="meta-row"><span class="mk">備註</span><span class="mv"><input value="${esc(q.note||'')}" placeholder="備註" onchange="updQField('note',this.value)"></span></div>
         </div>
       </div>
 
